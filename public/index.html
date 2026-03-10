@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RISE — CMS Review Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000000;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #04DF83;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .badge {
+      background: rgba(4, 223, 131, 0.12);
+      color: #04DF83;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Arena ── */
+    .arena {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 62px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 24px;
+    }
+
+    /* ── Swipe hints ── */
+    .swipe-hint {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .swipe-hint-left {
+      left: 40px;
+      color: #ff6b6b;
+    }
+
+    .swipe-hint-right {
+      right: 40px;
+      color: #04DF83;
+    }
+
+    /* ── Card Stack ── */
+    .card-stack {
+      position: relative;
+      width: 520px;
+      max-width: 92vw;
+    }
+
+    .card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: calc(100vh - 210px);
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 36px;
+      cursor: grab;
+      touch-action: none;
+      transition: box-shadow 0.2s;
+      will-change: transform;
+    }
+
+    .card:active { cursor: grabbing; }
+
+    .card-shadow-1 {
+      transform: translateY(8px) scale(0.97);
+      pointer-events: none;
+    }
+
+    .card-shadow-1 > * { visibility: hidden; }
+
+    .card-shadow-2 {
+      transform: translateY(16px) scale(0.94);
+      pointer-events: none;
+    }
+
+    .card-shadow-2 > * { visibility: hidden; }
+
+    /* ── Stamp overlays ── */
+    .stamp {
+      position: absolute;
+      top: 28px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border: 4px solid;
+      border-radius: 10px;
+      transform: rotate(-12deg);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .stamp-approve {
+      right: 24px;
+      color: #04DF83;
+      border-color: #04DF83;
+    }
+
+    .stamp-reject {
+      left: 24px;
+      color: #ff6b6b;
+      border-color: #ff6b6b;
+      transform: rotate(12deg);
+    }
+
+    /* ── Card content ── */
+    .card-account {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #04DF83;
+      background: rgba(4, 223, 131, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .card-copy {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px 22px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.7);
+      white-space: pre-wrap;
+    }
+
+    /* ── Bottom controls ── */
+    .controls {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 50;
+    }
+
+    .ctrl-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2px solid;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .ctrl-btn:active {
+      transform: scale(0.92);
+    }
+
+    .ctrl-reject {
+      border-color: rgba(255, 107, 107, 0.4);
+      color: #ff6b6b;
+    }
+
+    .ctrl-reject:hover {
+      background: rgba(255, 107, 107, 0.1);
+      border-color: #ff6b6b;
+      box-shadow: 0 0 24px rgba(255, 107, 107, 0.15);
+    }
+
+    .ctrl-approve {
+      border-color: rgba(4, 223, 131, 0.4);
+      color: #04DF83;
+    }
+
+    .ctrl-approve:hover {
+      background: rgba(4, 223, 131, 0.1);
+      border-color: #04DF83;
+      box-shadow: 0 0 24px rgba(4, 223, 131, 0.15);
+    }
+
+    .ctrl-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* ── Note modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: #0d0d0d;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      width: 440px;
+      max-width: 90vw;
+      animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+    }
+
+    .modal textarea {
+      width: 100%;
+      min-height: 100px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      resize: vertical;
+      margin-bottom: 16px;
+    }
+
+    .modal textarea:focus {
+      outline: none;
+      border-color: rgba(255, 107, 107, 0.4);
+    }
+
+    .modal textarea::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-cancel:hover { color: rgba(255,255,255,0.7); }
+
+    .btn-send {
+      background: #ff6b6b;
+      color: #000;
+    }
+
+    .btn-send:hover {
+      background: #ff8484;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.25);
+    }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+    }
+
+    .toast-success {
+      background: rgba(4, 223, 131, 0.15);
+      border: 1px solid rgba(4, 223, 131, 0.3);
+      color: #04DF83;
+    }
+
+    .toast-error {
+      background: rgba(255, 107, 107, 0.15);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #ff6b6b;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    /* ── Empty state ── */
+    .done-screen {
+      text-align: center;
+      animation: modalIn 0.4s ease;
+    }
+
+    .done-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .done-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #04DF83;
+    }
+
+    .done-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ── Keyboard hint ── */
+    .key-hints {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 24px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.15);
+      z-index: 5;
+    }
+
+    .key-hints kbd {
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-right: 4px;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 15px;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: #04DF83;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 500px) {
+      .header { padding: 16px 20px; }
+      .card { padding: 24px; }
+      .card-title { font-size: 18px; }
+      .controls { bottom: 24px; gap: 20px; }
+      .ctrl-btn { width: 52px; height: 52px; }
+      .key-hints { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-text">RISE</div>
+      <div class="header-divider"></div>
+      <div class="header-title">CMS Review Board</div>
+    </div>
+    <div class="badge" id="count-badge">—</div>
+  </div>
+
+  <div class="arena" id="arena">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Loading posts...
+    </div>
+
+    <div class="swipe-hint swipe-hint-left" id="hint-left">CHANGES</div>
+    <div class="swipe-hint swipe-hint-right" id="hint-right">APPROVE</div>
+
+    <div class="card-stack" id="card-stack"></div>
+
+    <div class="controls" id="controls" style="display:none">
+      <button class="ctrl-btn ctrl-reject" onclick="triggerSwipe('left')" title="Request changes">
+        <span class="ctrl-icon">&#10005;</span>
+      </button>
+      <button class="ctrl-btn ctrl-approve" onclick="triggerSwipe('right')" title="Approve">
+        <span class="ctrl-icon">&#10003;</span>
+      </button>
+    </div>
+
+    <div class="key-hints" id="key-hints" style="display:none">
+      <span><kbd>&larr;</kbd> Request changes</span>
+      <span><kbd>&rarr;</kbd> Approve</span>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
+
+  <!-- Note modal -->
+  <div class="modal-overlay" id="note-modal">
+    <div class="modal">
+      <div class="modal-title">Request Changes</div>
+      <div class="modal-sub" id="modal-post-name">—</div>
+      <textarea id="note-input" placeholder="What needs to change?"></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="cancelNote()">Cancel</button>
+        <button class="btn btn-send" onclick="submitNote()">Send Note</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Config ──
+    const DEMO_MODE = false;
+    const API_BASE = window.location.origin;
+    const DATABASE_ID = "2bc3b461-9cb0-81a6-a90c-000bfeea6bd4";
+
+    // ── Demo Data ──
+    const DEMO_POSTS = [
+      {
+        id: "demo-1",
+        title: "RISE Mainnet Launch Announcement",
+        copy: "The future of parallel execution is here.\n\nRISE Mainnet is officially live — built from the ground up for speed, scale, and composability.\n\nThis isn't an incremental upgrade. It's a new foundation.\n\nLearn more below.",
+        date: "2026-03-10",
+        platform: "Twitter",
+        account: "@rise_chain",
+      },
+      {
+        id: "demo-2",
+        title: "Developer Grants Program",
+        copy: "Calling all builders.\n\nWe're committing $5M to developers building on RISE. Infra, tooling, DeFi, consumer — if you're shipping, we want to back you.\n\nApplications open now.",
+        date: "2026-03-11",
+        platform: "Twitter",
+        account: "@rise_chain",
+      },
+      {
+        id: "demo-3",
+        title: "Goldsky Integration Thread",
+        copy: "Real-time data indexing is live on RISE.\n\nWe've partnered with @goldsky to bring Mirror and Subgraph support to RISE from day one.\n\nWhat this means for devs:",
+        date: "2026-03-12",
+        platform: "Twitter",
+        account: "@risex",
+      },
+      {
+        id: "demo-4",
+        title: "Sam's Weekly Alpha",
+        copy: "Week 11 update:\n\n- 420k txns processed in testnet stress test\n- 3 new DeFi protocols deploying this month\n- Parallel EVM benchmarks dropping Friday\n\nRISE is moving fast. Here's what's next:",
+        date: "2026-03-13",
+        platform: "Twitter",
+        account: "@sam_battenally",
+      },
+      {
+        id: "demo-5",
+        title: "RISE x Yearn Partnership",
+        copy: "Yield meets speed.\n\n@yearnfi vaults are coming to RISE — bringing battle-tested yield strategies to the fastest EVM chain.\n\nDetails soon.",
+        date: "2026-03-14",
+        platform: "Twitter",
+        account: "@risex",
+      },
+      {
+        id: "demo-6",
+        title: "Community AMA Recap",
+        copy: "Missed yesterday's AMA? Here's what you need to know:\n\n1. Token launch timeline confirmed\n2. Bridge partners announced\n3. Ecosystem fund structure revealed\n\nFull recap thread:",
+        date: "2026-03-15",
+        platform: "Twitter",
+        account: "@rise_chain",
+      },
+    ];
+
+    // ── State ──
+    let allPosts = [];
+    let currentIndex = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let pendingRejectId = null;
+    let pendingRejectTitle = "";
+    let isAnimating = false;
+
+    // ── Toast ──
+    function toast(message, type = "success") {
+      const el = document.createElement("div");
+      el.className = `toast toast-${type}`;
+      el.textContent = message;
+      document.getElementById("toasts").appendChild(el);
+      setTimeout(() => el.remove(), 2500);
+    }
+
+    // ── Notion helpers (kept for when API is connected) ──
+    function getProp(page, name) {
+      const prop = page.properties?.[name];
+      if (!prop) return null;
+      switch (prop.type) {
+        case "title": return prop.title?.map(t => t.plain_text).join("") || "";
+        case "rich_text": return prop.rich_text?.map(t => t.plain_text).join("") || "";
+        case "select": return prop.select?.name || "";
+        case "multi_select": return prop.multi_select?.map(s => s.name).join(", ") || "";
+        case "date": return prop.date?.start || "";
+        case "status": return prop.status?.name || "";
+        default: return null;
+      }
+    }
+
+    function findPropName(page, candidates) {
+      if (!page.properties) return null;
+      for (const name of candidates) {
+        if (page.properties[name]) return name;
+      }
+      return null;
+    }
+
+    // ── Normalize posts from either source ──
+    function normalizePost(page) {
+      if (page.title && typeof page.title === "string") return page; // already demo format
+      const titleKey = findPropName(page, ["Post Title", "Title", "Name"]) || "Name";
+      const copyKey = findPropName(page, ["Tweet Copy", "Copy", "Tweet", "Content", "Body"]);
+      const dateKey = findPropName(page, ["Publish Date", "Date", "Publish date"]);
+      const platformKey = findPropName(page, ["Platform", "Platforms", "Channel"]);
+      const accountKey = findPropName(page, ["Account", "Accounts", "Handle"]);
+      return {
+        id: page.id,
+        title: getProp(page, titleKey) || "Untitled",
+        copy: copyKey ? getProp(page, copyKey) : "",
+        date: dateKey ? getProp(page, dateKey) : "",
+        platform: platformKey ? getProp(page, platformKey) : "",
+        account: accountKey ? getProp(page, accountKey) : "",
+      };
+    }
+
+    // ── Fetch ──
+    async function fetchPages() {
+      if (DEMO_MODE) return DEMO_POSTS;
+
+      const res = await fetch(`${API_BASE}/api/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          database_id: DATABASE_ID,
+          payload: {
+            filter: {
+              or: [
+                { property: "Status", status: { equals: "To review" } },
+                { property: "Status", select: { equals: "To review" } },
+              ]
+            },
+            sorts: [{ property: "Publish Date", direction: "ascending" }]
+          }
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || JSON.stringify(data));
+      return data.results || [];
+    }
+
+    async function updatePage(pageId, statusValue, note) {
+      if (DEMO_MODE) {
+        await new Promise(r => setTimeout(r, 300));
+        return {};
+      }
+
+      const payload = {
+        properties: { Status: { status: { name: statusValue } } }
+      };
+      if (note) {
+        payload.properties["Review Notes"] = {
+          rich_text: [{ text: { content: note } }]
+        };
+      }
+
+      let res = await fetch(`${API_BASE}/api/pages/${pageId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      let data = await res.json();
+
+      if (!res.ok && data.message?.includes("status")) {
+        payload.properties.Status = { select: { name: statusValue } };
+        res = await fetch(`${API_BASE}/api/pages/${pageId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        data = await res.json();
+      }
+      if (!res.ok) throw new Error(data.message || JSON.stringify(data));
+      return data;
+    }
+
+    // ── Format date ──
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr + "T00:00:00");
+      return d.toLocaleDateString("en-US", {
+        weekday: "short", month: "short", day: "numeric"
+      });
+    }
+
+    function escHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ── Render card stack ──
+    function renderStack() {
+      const stack = document.getElementById("card-stack");
+      stack.innerHTML = "";
+
+      const remaining = allPosts.length - currentIndex;
+      document.getElementById("count-badge").textContent =
+        remaining > 0 ? `${remaining} to review` : "0";
+
+      if (remaining <= 0) {
+        document.getElementById("controls").style.display = "none";
+        document.getElementById("key-hints").style.display = "none";
+        stack.innerHTML = `
+          <div class="done-screen">
+            <div class="done-icon">&#10003;</div>
+            <div class="done-title">All reviewed</div>
+            <div class="done-sub">No more posts to review. Nice work.</div>
+          </div>`;
+        return;
+      }
+
+      document.getElementById("controls").style.display = "flex";
+      document.getElementById("key-hints").style.display = "flex";
+
+      // Render up to 3 cards (current + 2 shadow)
+      for (let i = Math.min(currentIndex + 2, allPosts.length - 1); i >= currentIndex; i--) {
+        const post = allPosts[i];
+        const depth = i - currentIndex;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.setAttribute("data-id", post.id);
+
+        if (depth === 0) {
+          card.style.zIndex = 10;
+          card.style.transform = "translateY(0) scale(1)";
+          setupDrag(card);
+        } else if (depth === 1) {
+          card.className += " card-shadow-1";
+          card.style.zIndex = 5;
+        } else {
+          card.className += " card-shadow-2";
+          card.style.zIndex = 1;
+        }
+
+        const meta = [formatDate(post.date), post.platform].filter(Boolean);
+
+        card.innerHTML = `
+          <div class="stamp stamp-approve" id="stamp-approve-${post.id}">Approved</div>
+          <div class="stamp stamp-reject" id="stamp-reject-${post.id}">Changes</div>
+          ${post.account ? `<div class="card-account">${escHtml(post.account)}</div>` : ""}
+          <div class="card-title">${escHtml(post.title)}</div>
+          ${meta.length ? `<div class="card-meta">${meta.join('<span class="meta-dot"></span>')}</div>` : ""}
+          ${post.copy ? `<div class="card-copy">${escHtml(post.copy)}</div>` : ""}
+        `;
+
+        stack.appendChild(card);
+      }
+    }
+
+    // ── Drag / Swipe logic ──
+    function setupDrag(card) {
+      card.addEventListener("pointerdown", onPointerDown);
+    }
+
+    function onPointerDown(e) {
+      if (isAnimating) return;
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      currentX = 0;
+      e.target.closest(".card")?.setPointerCapture(e.pointerId);
+      document.addEventListener("pointermove", onPointerMove);
+      document.addEventListener("pointerup", onPointerUp);
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      currentX = e.clientX - startX;
+      const rotate = currentX * 0.08;
+      const topCard = document.querySelector(".card[style*='z-index: 10']") ||
+                      document.querySelector(".card-stack .card:last-child");
+      if (!topCard) return;
+
+      topCard.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
+      topCard.style.transition = "none";
+
+      // Show stamp
+      const post = allPosts[currentIndex];
+      const approveStamp = document.getElementById(`stamp-approve-${post.id}`);
+      const rejectStamp = document.getElementById(`stamp-reject-${post.id}`);
+      const threshold = 60;
+
+      if (approveStamp) approveStamp.style.opacity = Math.min(Math.max(currentX - 30, 0) / threshold, 1);
+      if (rejectStamp) rejectStamp.style.opacity = Math.min(Math.max(-currentX - 30, 0) / threshold, 1);
+
+      // Side hints
+      document.getElementById("hint-right").style.opacity = Math.min(Math.max(currentX - 30, 0) / 120, 1);
+      document.getElementById("hint-left").style.opacity = Math.min(Math.max(-currentX - 30, 0) / 120, 1);
+    }
+
+    function onPointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+
+      document.getElementById("hint-right").style.opacity = 0;
+      document.getElementById("hint-left").style.opacity = 0;
+
+      const threshold = 100;
+
+      if (currentX > threshold) {
+        flyOut("right");
+      } else if (currentX < -threshold) {
+        flyOut("left");
+      } else {
+        // Snap back
+        const topCard = document.querySelector(".card[style*='z-index: 10']") ||
+                        document.querySelector(".card-stack .card:last-child");
+        if (topCard) {
+          topCard.style.transition = "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+          topCard.style.transform = "translateX(0) rotate(0deg)";
+          // Reset stamps
+          const post = allPosts[currentIndex];
+          const as = document.getElementById(`stamp-approve-${post.id}`);
+          const rs = document.getElementById(`stamp-reject-${post.id}`);
+          if (as) as.style.opacity = 0;
+          if (rs) rs.style.opacity = 0;
+        }
+      }
+    }
+
+    // ── Fly out animation ──
+    function flyOut(direction) {
+      isAnimating = true;
+      const topCard = document.querySelector(".card[style*='z-index: 10']") ||
+                      document.querySelector(".card-stack .card:last-child");
+      if (!topCard) return;
+
+      const flyX = direction === "right" ? 800 : -800;
+      const flyRot = direction === "right" ? 30 : -30;
+
+      topCard.style.transition = "transform 0.45s cubic-bezier(0.2, 0, 0.3, 1), opacity 0.45s ease";
+      topCard.style.transform = `translateX(${flyX}px) rotate(${flyRot}deg)`;
+      topCard.style.opacity = "0";
+
+      const post = allPosts[currentIndex];
+
+      setTimeout(() => {
+        if (direction === "right") {
+          handleApprove(post);
+        } else {
+          handleReject(post);
+        }
+        isAnimating = false;
+      }, 400);
+    }
+
+    function triggerSwipe(direction) {
+      if (isAnimating || currentIndex >= allPosts.length) return;
+
+      // Show stamp briefly
+      const post = allPosts[currentIndex];
+      const stampId = direction === "right" ? `stamp-approve-${post.id}` : `stamp-reject-${post.id}`;
+      const stamp = document.getElementById(stampId);
+      if (stamp) stamp.style.opacity = 1;
+
+      flyOut(direction);
+    }
+
+    // ── Actions ──
+    async function handleApprove(post) {
+      currentIndex++;
+      renderStack();
+      try {
+        await updatePage(post.id, "Approved");
+        toast("Approved — " + post.title);
+      } catch (e) {
+        toast("Failed: " + e.message, "error");
+      }
+    }
+
+    function handleReject(post) {
+      pendingRejectId = post.id;
+      pendingRejectTitle = post.title;
+      document.getElementById("modal-post-name").textContent = post.title;
+      document.getElementById("note-modal").classList.add("visible");
+      document.getElementById("note-input").value = "";
+      setTimeout(() => document.getElementById("note-input").focus(), 100);
+    }
+
+    function cancelNote() {
+      document.getElementById("note-modal").classList.remove("visible");
+      // Card already gone — move on
+      currentIndex++;
+      renderStack();
+      pendingRejectId = null;
+    }
+
+    async function submitNote() {
+      const note = document.getElementById("note-input").value.trim();
+      if (!note) {
+        toast("Add a note first", "error");
+        return;
+      }
+
+      document.getElementById("note-modal").classList.remove("visible");
+      currentIndex++;
+      renderStack();
+
+      try {
+        await updatePage(pendingRejectId, "Needs Clarification", note);
+        toast("Changes requested — " + pendingRejectTitle);
+      } catch (e) {
+        toast("Failed: " + e.message, "error");
+      }
+
+      pendingRejectId = null;
+    }
+
+    // ── Keyboard ──
+    document.addEventListener("keydown", (e) => {
+      if (document.getElementById("note-modal").classList.contains("visible")) {
+        if (e.key === "Escape") cancelNote();
+        if (e.key === "Enter" && e.metaKey) submitNote();
+        return;
+      }
+
+      if (e.key === "ArrowRight") triggerSwipe("right");
+      if (e.key === "ArrowLeft") triggerSwipe("left");
+    });
+
+    // ── Init ──
+    async function init() {
+      try {
+        const raw = await fetchPages();
+        allPosts = raw.map(normalizePost);
+        allPosts.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+        document.getElementById("loading").style.display = "none";
+        renderStack();
+      } catch (e) {
+        document.getElementById("loading").innerHTML = `
+          <div style="color:#ff6b6b">Failed to load: ${escHtml(e.message)}</div>`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
