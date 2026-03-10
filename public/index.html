@@ -560,7 +560,7 @@
         copy: "RISE runs PEVM under the hood.\n\nParallel EVM that doesn't require you to change anything.\n\nTransactions arrive → PEVM identifies which are independent → executes them concurrently → merges state deterministically.\n\nNo special annotations. No parallel-aware Solidity.\nStandard EVM contracts. Just faster.\n\n2-22x throughput improvement depending on workload.",
         date: "2026-03-10",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "arch-2",
@@ -576,7 +576,7 @@
         copy: "Sub-3ms execution latency on RISE.\n\nNot a benchmark. The live testnet number.\n100k TPS capacity. Ethereum-secured.\n\nWhen your protocol depends on fast settlement, the underlying chain's latency is your latency.\n\nBuild accordingly.",
         date: "2026-03-12",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "arch-4",
@@ -584,7 +584,7 @@
         copy: "The combination most chains can't offer:\n\nHigh-throughput parallel execution (PEVM)\n+ synchronous composability between orderbook and DeFi.\n\nMost high-throughput chains sacrifice composability to get speed. RISE runs both simultaneously.\n\nParallel execution handles throughput.\nShared state handles composability.\nDifferent problems. Solved independently.",
         date: "2026-03-13",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       // Pillar 2: MarketCore & Orderbook
       {
@@ -593,7 +593,7 @@
         copy: "MarketCore is RISE's native orderbook infrastructure.\nAn onchain CLOB accessible from any smart contract via standard Solidity.\n\nNo proprietary API. No permissioned gateway.\nNo offchain matching.\n\nAny builder can:\n→ spin up a market\n→ submit orders\n→ read book state\n→ integrate positions as collateral\n\nPermissionlessly.",
         date: "2026-03-14",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "mc-2",
@@ -601,7 +601,7 @@
         copy: "One orderbook. All apps.\n\nEvery application that integrates MarketCore shares the same liquidity pool.\n\nA perp DEX, an options protocol, and a structured products vault all draw from and contribute to the same depth.\n\nFragmented liquidity is a startup tax.\nMarketCore removes it.",
         date: "2026-03-15",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "mc-3",
@@ -617,7 +617,7 @@
         copy: "The RLP loop only works because of shared state:\n\n1. Deposit into vault → receipt token\n2. Post receipt token to Spine as collateral\n3. Borrow against it\n4. Redeposit into vault\n\nComposability with the orderbook. Not next to it.\n\nTry building this on any offchain-matching platform.\nYou can't.",
         date: "2026-03-17",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       // Pillar 3: Builder Tutorials
       {
@@ -626,7 +626,7 @@
         copy: "Deploy to RISE testnet with Foundry:\n\nforge create src/MyContract.sol:MyContract \\\n  --rpc-url https://testnet.risechain.com \\\n  --private-key $PRIVATE_KEY\n\nVerify on Blockscout — no API key needed.\n\nChain ID: 11155931\nDocs: docs.risechain.com",
         date: "2026-03-18",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "tut-2",
@@ -634,7 +634,7 @@
         copy: "Read orderbook state from a Solidity contract on RISE:\n\ninterface IMarketCore {\n  function getBestBid(uint256 marketId)\n    external view returns (uint256 price, uint256 size);\n  function getBestAsk(uint256 marketId)\n    external view returns (uint256 price, uint256 size);\n}\n\nStandard Solidity. No special tooling.\n\nFull MarketCore docs: docs.risechain.com/marketcore",
         date: "2026-03-19",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "tut-3",
@@ -642,7 +642,7 @@
         copy: "Free UX infrastructure for any RISE app:\n\n→ Gasless transactions\n→ Social login (Google, Apple, email)\n→ Passkeys\n→ Session tokens\n\nRISE Wallet is free for any builder to integrate.\n\nThe hardest part of onboarding users is removed.\nDocs: docs.risechain.com/wallet",
         date: "2026-03-20",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       // Pillar 4: Builder Spotlights
       {
@@ -659,7 +659,7 @@
         copy: "Icarus is building options on RISE.\n\nBuilding options on a chain with a native CLOB: you can hedge delta directly against RISEx's orderbook, in the same transaction you write the option.\n\nOptions market makers know how complex cross-venue hedging is.\n\nIcarus gets to skip that problem entirely.",
         date: "2026-03-22",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       // Pillar 5: Open Source Highlights
       {
@@ -668,7 +668,7 @@
         copy: "risechain/pevm is open source.\n\nParallel EVM built for optimistic execution.\n\nThe core insight: most transactions don't conflict. PEVM assumes independence, runs them in parallel, and resolves conflicts only when they actually occur.\n\n52+ public repos. Building in the open.\n\ngithub.com/risechain/pevm",
         date: "2026-03-23",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "oss-2",
@@ -676,7 +676,7 @@
         copy: "RISE runs a fork of reth — Ethereum's Rust execution client.\n\nStandard Ethereum tooling. Standard devops.\nStandard monitoring.\n\nIf you run Ethereum nodes, you already know how to run RISE.\n\nInfra compatibility isn't a talking point.\nIt's a design decision.\n\ngithub.com/risechain/reth-rise",
         date: "2026-03-24",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "oss-3",
@@ -684,7 +684,7 @@
         copy: "52+ public repos.\n\nrisechain/pevm — parallel EVM\nrisechain/reth — execution client fork\nrisechain/rise-node — node software\n\nBuilding in the open isn't a marketing move.\nIt's the only way to build credibly.\n\nIf you want to understand how RISE works, the code is there.\n\ngithub.com/risechain",
         date: "2026-03-25",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       // Pillar 6: DeFi Infra Commentary
       {
@@ -701,7 +701,7 @@
         copy: "Data availability isn't exciting until settlement fails.\n\nEigenDA means RISE's transaction data is available and verifiable on Ethereum — without paying mainnet gas costs for every byte.\n\nFor builders: fast, cheap DA means your app can write more state, more often, without cost cliffs.\n\nThe floor matters.",
         date: "2026-03-27",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
       {
         id: "defi-3",
@@ -709,7 +709,7 @@
         copy: "MEV on a chain with a native orderbook is structurally different.\n\nOn most chains, MEV extracts value from users. On RISE, the orderbook is the first-class settlement layer — arbitrage between RISEx and external venues becomes the primary MEV source, not sandwich attacks.\n\nBetter MEV structure is better for users.",
         date: "2026-03-28",
         platform: "Twitter",
-        account: "@rise_chain",
+        account: "@RISE_ecosystem",
       },
     ];
 
