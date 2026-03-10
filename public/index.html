@@ -866,6 +866,7 @@
             <div class="done-icon">&#10003;</div>
             <div class="done-title">All reviewed</div>
             <div class="done-sub">No more posts to review. Nice work.</div>
+            <button onclick="resetDeck()" style="margin-top:24px;background:#04DF83;color:#000;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;padding:12px 28px;border:none;border-radius:12px;cursor:pointer;">Reload Queue</button>
           </div>`;
         return;
       }
@@ -1067,6 +1068,11 @@
       }
 
       pendingRejectId = null;
+    }
+
+    function resetDeck() {
+      currentIndex = 0;
+      renderStack();
     }
 
     // ── Keyboard ──
